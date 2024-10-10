@@ -1,0 +1,43 @@
+Now we fixed both of the above errors. However, if we try to compile it now, another error occurs:
+
+> cargo build
+error: requires `start` lang_item
+
+One might think that the main function is the first function called when you run a program. However, most languages have a runtime system, which is responsible for things such as garbage collection (e.g. in Java) or software threads (e.g. goroutines in Go). This runtime needs to be called before main, since it needs to initialize itself.
+
+In a typical Rust binary that links the standard library, execution starts in a C runtime library called crt0 (“C runtime zero”), which sets up the environment for a C application. This includes creating a stack and placing the arguments in the right registers. The C runtime then invokes the entry point of the Rust runtime, which is marked by the start language item. Rust only has a very minimal runtime, which takes care of some small things such as setting up stack overflow guards or printing a backtrace on panic. The runtime then finally calls the main function.
+
+Our freestanding executable does not have access to the Rust runtime and crt0, so we need to define our own entry point. Implementing the start language item wouldn’t help, since it would still require crt0. Instead, we need to overwrite the crt0 entry point directly.
+
+Overwriting the Entry Point
+To tell the Rust compiler that we don’t want to use the normal entry point chain, we add the #![no_main] attribute.
+
+#![no_std]
+#![no_main]
+
+use core::panic::PanicInfo;
+
+/// This function is called on panic.
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
+}
+
+
+You might notice that we removed the main function. The reason is that a main doesn’t make sense without an underlying runtime that calls it. Instead, we are now overwriting the operating system entry point with our own _start function:
+
+#[no_mangle]
+pub extern "C" fn _start() -> ! {
+    loop {}
+}
+
+By using the #[no_mangle] attribute, we disable name mangling to ensure that the Rust compiler really outputs a function with the name _start. Without the attribute, the compiler would generate some cryptic _ZN3blog_os4_start7hb173fedf945531caE symbol to give every function a unique name. The attribute is required because we need to tell the name of the entry point function to the linker in the next step.
+
+We also have to mark the function as extern "C" to tell the compiler that it should use the C calling convention for this function (instead of the unspecified Rust calling convention). The reason for naming the function _start is that this is the default entry point name for most systems.
+"pub" stand for public
+Calling convention defines how functions receive parameters and return values, and how the stack is managed. Since most OS bootloaders or low-level system code expects C conventions (not Rust’s default, which is unspecified), this ensures compatibility with other parts of the system.
+The function is named _start because this is the default entry point name on most systems
+When a bootloader (like GRUB for x86) or the firmware starts running your program, it looks for a function called _start as the entry point where it will transfer control.
+In typical systems, the bootloader initializes the CPU, sets up memory, and then jumps to the _start function to begin executing the program.
+
+The ! return type means that the function is diverging, i.e. not allowed to ever return. This is required because the entry point is not called by any function, but invoked directly by the operating system or bootloader. So instead of returning, the entry point should e.g. invoke the exit system call of the operating system. In our case, shutting down the machine could be a reasonable action, since there’s nothing left to do if a freestanding binary returns. For now, we fulfill the requirement by looping endlessly.

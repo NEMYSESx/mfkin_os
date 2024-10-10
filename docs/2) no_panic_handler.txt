@@ -1,0 +1,29 @@
+When compiling a no_std Rust program, even with an empty main function, the Rust compiler still expects certain runtime components to handle scenarios like panics and memory management. These components are part of the standard Rust environment (std), but since you've disabled it using #![no_std], you need to provide replacements for these components or explicitly opt out of them.
+
+Creating our own panic_handler function
+
+use core::panic::PanicInfo;
+
+/// This function is called on panic.
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
+}
+
+
+
+use core::panic::PanicInfo;
+The PanicInfo parameter contains the file and line where the panic happened and the optional panic message.
+
+#[panic_handler]
+The #[panic_handler] attribute is used to define a custom panic handler. Since the std library isn't available to handle panics in the usual way (e.g., printing a message and aborting), you have to specify what should happen when a panic occurs.
+
+ fn panic(_info: &PanicInfo) -> !
+This function is your custom panic handler. It gets triggered when your program panics.
+
+The panic function takes one argument, _info, which is a reference to a PanicInfo struct. This struct contains information about the panic, such as the location in the code where it occurred. The argument is prefixed with an underscore (_) to indicate that it's unused in this function, which is common when you don't need the actual data (you’re just satisfying the function signature).
+
+The return type of the function is !, which is the never type. It signifies that this function never returns because, in this case, the program enters an infinite loop (loop {}) and halts execution, which is typical in embedded systems when you hit an unrecoverable error.
+
+loop {}
+The loop {} construct is an infinite loop that just runs forever. In this panic handler, it represents a halt in the system where the program is stuck and doesn't continue executing. In real embedded systems, you might replace this with a more appropriate behavior, like resetting the system, logging the error, or triggering a watchdog timer.

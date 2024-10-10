@@ -1,0 +1,8 @@
+The nightly Rust compiler allows developers to enable experimental and unstable features that aren't yet available in the stable or beta channels. These features are often in development and not fully stabilized, which means they could change, be removed, or behave unpredictably in future versions.
+
+. For example, we could enable the experimental asm! macro for inline assembly by adding #![feature(asm)] to the top of our main.rs. 
+The asm! macro for inline assembly is currently only available on the nightly channel of Rust. It is not available in the stable or beta releases.
+
+rustup override set nightly
+
+You can check that you have a nightly version installed by running rustc --version: The version number should contain -nightly at the end.

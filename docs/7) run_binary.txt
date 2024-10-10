@@ -1,0 +1,64 @@
+How to Run a Binary Directly on Your Computer’s Hardware
+Running a binary directly on your computer means executing a program without relying on an operating system like Windows or Linux. Here’s how you can do it:
+
+1. What’s a Binary?
+A binary is a compiled version of your code. Think of it like a finished recipe (code) that you can actually cook (execute).
+For instance, if you write a program in Rust or C, you compile it to create a binary file that the computer can run.
+2. Boot Process Basics
+When you turn on your computer, it goes through a boot process. The firmware (BIOS or UEFI) starts up, checking and initializing hardware components before loading the operating system (like Windows).
+ However, the goal of running a freestanding binary directly on the hardware means you want to avoid relying on a traditional operating system—not the firmware itself.
+
+3. Create a Bootable Medium
+You need a way to tell your computer where to find your binary. This is often done using a bootable medium like a USB flash drive or a CD.
+Here’s how to make one:
+Write your binary onto the USB drive using a tool. This makes the USB drive ready to tell the firmware to load your program instead of a full operating system.
+4. Using a Bootloader (Optional)
+Sometimes, you might want to use a bootloader (like GRUB) to help load your binary.
+The bootloader acts like a helpful guide, telling the computer where to find your binary and how to start it.
+If you're building something more complex (like a kernel), a bootloader is usually necessary.
+5. Configure Your Computer’s Firmware
+To run your binary, you might need to adjust some settings in your computer's firmware:
+When starting your computer, press a key (like F2 or DEL) to enter the firmware settings.
+Change the boot order so that it tries to boot from your USB drive first.
+6. Booting the System
+With your USB drive plugged in, restart your computer.
+The firmware should recognize the USB drive, load your binary from it, and run your code directly.
+
+es, you're correct. What I said earlier is that you can either run the operating system (OS) or your custom binary on the computer at any given time, but you can’t run both directly on the hardware at the same time.
+
+Let me clarify the process in simpler terms, especially in the context of developing an OS on a Windows computer:
+
+Developing an OS on Windows (or any other OS):
+When you’re developing your own OS, it doesn't mean you have to wipe out your current OS (like Windows) from your computer. Here’s how you can work with both:
+
+Development Environment (Windows):
+
+You can write your OS code on Windows. This is just the development environment where you write and compile the code.
+You’ll use tools like Rust, Cargo, and QEMU for testing your OS.
+Windows is just the platform you’re using to build and test your custom OS.
+Running Your OS or Custom Binary:
+
+When you actually want to run your OS, it doesn’t run inside Windows; instead, it takes over the hardware. This means that:
+You can either boot into Windows (your existing OS) or boot into your custom OS (the binary you created).
+You can’t have both running directly on the hardware at the same time.
+So, when you're testing or running your custom OS, you tell the computer to boot from your custom binary instead of Windows. This is usually done through:
+
+A USB drive with your OS loaded on it.
+Changing the boot order in the BIOS/UEFI to load your custom OS.
+Here’s How You Can Do Both:
+Write and Compile Your OS in Windows:
+
+You can use Windows to write your OS code in Rust.
+You can use tools like Cargo to compile it.
+You can test it using emulators like QEMU without touching your computer’s actual OS installation.
+Running on Real Hardware (If you want):
+
+Once you're ready, you can create a bootable USB drive with your custom OS binary.
+To actually run your OS, you restart your computer, choose to boot from the USB (instead of the Windows installation), and your OS will take over the hardware.
+During this process, Windows will not be running. You’ll either be running Windows or your OS, but not both at the same time directly on the hardware.
+
+Testing in a Virtual Environment:
+A common and safer approach is to use virtualization or emulators like QEMU or VirtualBox. This allows you to run your OS inside Windows in a virtual machine.
+This way, Windows keeps running, and the emulator simulates a computer for your custom OS to run on. It’s perfect for development and testing without needing to reboot your actual machine every time.
+
+

@@ -1,0 +1,10 @@
+The eh_personality Language Item
+
+In Rust, the eh_personality language item is a special internal function used to handle stack unwinding during panics. Unwinding is the process where the program cleans up after a panic by running the destructors of all the variables on the stack, ensuring that resources like memory are properly freed. This mechanism is part of Rust’s standard panic behavior, which relies on underlying system-specific libraries to manage unwinding.
+
+In certain contexts, especially when building freestanding or embedded systems (such as operating systems or firmware), unwinding is often undesirable or unnecessary. Unwinding increases the binary size and complexity because it requires additional symbol information and system-specific libraries. In cases like this, it’s common to disable unwinding entirely and instead have the program abort on panic.
+
+Rust allows you to switch from unwinding to aborting during panics. By setting the panic strategy to "abort", you can completely disable stack unwinding and the need for the eh_personality language item
+
+modify the cargo.toml
+Rust allows you to switch from unwinding to aborting during panics. By setting the panic strategy to "abort", you can completely disable stack unwinding and the need for the eh_personality language item
